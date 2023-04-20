@@ -31,16 +31,18 @@ that in generating foggy images. Output images will be in the folder ***data/smo
 # Demonstration
 
 ### Foggy Simulation
-From left to right is original image, image with light fog, image with medium fog and image with heavy fog respectively.
+From left to right is **original image**, **image with light fog**, **image with medium fog** and **image with heavy fog**
+respectively.
 ![Foggy Image](media/foggy.jpg)
 
 ### Rainy Simulation
-From left to right is original image, image with light rain and image with heavy rain respectively. The heavy rain simulation
-is **not included** in the code because it's not quite real.
+From left to right is **original image**, **image with light rain** and **image with heavy rain** respectively. 
+The heavy rain simulation is **not included** in the code because it's not quite real.
 ![Rainy Image](media/rainy.jpg)
 
 ### Smoke Simulation
-From left to right is original image, image with light smoke, image with medium smoke and image with heavy smoke respectively.
+From left to right is **original image**, **image with light smoke**, **image with medium smoke** and **image with heavy smoke**
+respectively.
 ![Smoky Image](media/smoky.jpg)
 
 # Cite
