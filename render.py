@@ -39,6 +39,7 @@ class Render:
         self.chosen_label_path = None
         self.height = 0
         self.width = 0
+        self.mask = None
         self.label = []
         self.input_channels = 3
 
@@ -82,6 +83,12 @@ class Render:
             self.input_channels = 3
         elif len(self.image.shape) == 2:
             self.input_channels = 1
+        scale = [256, 512, 1024, 2048, 4096]
+        margin = np.zeros_like(scale)
+        for i in range(len(scale)):
+            margin[i] = np.abs(scale[i] - np.max((self.height, self.width)))
+        index = np.argmin(margin)
+        self.mask = os.path.join(self.mask_path, 'mask_{}.jpg'.format(scale[index]))
         self.fog_color = np.ones_like(self.image)
         self.fog_color *= 240
         self.rain_color = np.ones_like(self.image)
@@ -254,22 +261,25 @@ class Render:
         depth_map = np.pad(pattern, ((umargin, dmargin), (lmargin, rmargin)), 'constant')
         return depth_map
 
-    def add_fog(self):
+    def add_fog(self, heavy, medium, light):
         self.render_type = 'fog'
+        choice = [heavy, medium, light]
         for index in range(len(self.fog_visibility_sequence)):
-            self.haze_visibility = self.fog_visibility_sequence[index]
-            self.synthesizer(index=index)
+            if choice[index]:
+                self.haze_visibility = self.fog_visibility_sequence[index]
+                self.synthesizer(index=index)
 
     def add_rain(self):
         self.render_type = 'rain'
         self.haze_visibility = 450
         self.synthesizer()
-        overlap(self.result_path, self.mask_path)
+        overlap(self.result_path, self.mask)
         add_stripe(self.result_path, 60, 5, 50)
 
-    def add_smoke(self):
+    def add_smoke(self, heavy, medium, light):
         self.render_type = 'smoke'
         depth_map = np.zeros((self.width, self.height))
+        choice = [heavy, medium, light]
         for i in range(len(self.point)):
             if self.size[i] / self.width >= 0.75 or self.size[i] / self.height >= 0.75:
                 continue
@@ -279,5 +289,6 @@ class Render:
             depth_map += self.gen_smoke_pattern(self.point[i][0], self.point[i][1], self.size[i], 80,
                                                 chosen_pattern_path, self.label[i], self.direction[i])
             for index in range(len(self.smoke_visibility_sequence)):
-                self.haze_visibility = self.smoke_visibility_sequence[index]
-                self.synthesizer(depth_map=depth_map, index=index)
+                if choice[index]:
+                    self.haze_visibility = self.smoke_visibility_sequence[index]
+                    self.synthesizer(depth_map=depth_map, index=index)
