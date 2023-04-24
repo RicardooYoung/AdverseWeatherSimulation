@@ -5,6 +5,31 @@ import argparse
 import render
 
 
+def colorstr(*input):
+    # Colors a string https://en.wikipedia.org/wiki/ANSI_escape_code, i.e.  colorstr('blue', 'hello world')
+    *args, string = input if len(input) > 1 else ('blue', 'bold', input[0])  # color arguments, string
+    colors = {'black': '\033[30m',  # basic colors
+              'red': '\033[31m',
+              'green': '\033[32m',
+              'yellow': '\033[33m',
+              'blue': '\033[34m',
+              'magenta': '\033[35m',
+              'cyan': '\033[36m',
+              'white': '\033[37m',
+              'bright_black': '\033[90m',  # bright colors
+              'bright_red': '\033[91m',
+              'bright_green': '\033[92m',
+              'bright_yellow': '\033[93m',
+              'bright_blue': '\033[94m',
+              'bright_magenta': '\033[95m',
+              'bright_cyan': '\033[96m',
+              'bright_white': '\033[97m',
+              'end': '\033[0m',  # misc
+              'bold': '\033[1m',
+              'underline': '\033[4m'}
+    return ''.join(colors[x] for x in args) + f'{string}' + colors['end']
+
+
 def arg_parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('--foggy', default=False, action='store_true')
@@ -43,7 +68,7 @@ if __name__ == '__main__':
 
     image_list = os.listdir(raw_path)
 
-    print('Detect {} files.'.format(len(image_list)))
+    print('Detect', colorstr('{}'.format(len(image_list))), 'files.')
 
     my_render = render.Render()
     my_render.set_raw_path(raw_path)
@@ -61,7 +86,8 @@ if __name__ == '__main__':
         if image_list[i].startswith('.'):
             print('Detect a system generated file, pass.')
             continue
-        print('[{}/{}]Now processing {}.'.format(i + 1, len(image_list), image_list[i].split('\\')[-1]))
+        print(colorstr('[{}/{}]'.format(i + 1, len(image_list))),
+              'Now processing {}.'.format(image_list[i].split('\\')[-1]))
         start_time = time.time()
         image_path = os.path.join(raw_path, image_list[i])
         my_render.read_image(image_path)
@@ -80,4 +106,4 @@ if __name__ == '__main__':
         end_time = time.time()
         print('|_Time elapsed {:.3f}s'.format(end_time - start_time))
 
-    print('All finished!')
+    print(colorstr('All finished!'))
