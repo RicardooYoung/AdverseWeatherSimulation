@@ -44,16 +44,3 @@ The heavy rain simulation is **not included** in the code because it's not quite
 From left to right is **original image**, **image with light smoke**, **image with medium smoke** and **image with heavy smoke**
 respectively.
 ![Smoky Image](media/smoky.jpg)
-
-# Cite
-If you found this repository useful, please consider citing this repository:
-```
-@misc{Runou2023,
-  author = {Runou Yang},
-  title = {AdverseWeatherSimulation},
-  year = {2023},
-  publisher = {GitHub},
-  journal = {GitHub repository},
-  howpublished = {\url{https://github.com/RicardooYoung/AdverseWeatherSimulation}},
-}
-```
