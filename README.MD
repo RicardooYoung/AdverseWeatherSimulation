@@ -1,11 +1,11 @@
 # Introduction
-This is a simulator that generates foggy, rainy and smoky image over a clear remote sensing image.
+This is a simulator that generates foggy, rainy, smoky and cloudy image over a clear remote sensing image.
 
 # Preparation
 ### Create a Virtual Environment
 Run ``pip install -r requirements.txt``.
 
-### Generate Foggy and Rainy Images
+### Generate Foggy, Rainy and Cloudy Images
 Just put the images into the folder ***data/raw***.
 
 ### Generate Smoky Images
@@ -28,6 +28,9 @@ Use command ``Python simulate.py --rainy``. Output images will be in the folder 
 Use command ``python simulate.py --smoky --light --medium --heavy``. The usage of the last three parameters is same to 
 that in generating foggy images. Output images will be in the folder ***data/smoky***.
 
+### Generate Cloudy Images
+Use command ``Python simulate.py --cloudy``. Output images will be in the folder ***data/cloudy***.
+
 # Demonstration
 
 ### Foggy Simulation
@@ -44,6 +47,10 @@ The heavy rain simulation is **not included** in the code because it's not quite
 From left to right is **original image**, **image with light smoke**, **image with medium smoke** and **image with heavy smoke**
 respectively.
 ![Smoky Image](media/smoky.jpg)
+
+### Cloudy Simulation
+From left to right is **original image**, **image with clouds**. We demonstrate two examples here.
+![Cloudy Image](media/cloudy.jpg)
 
 # Cite
 If you found this repository useful, please consider citing this repository:

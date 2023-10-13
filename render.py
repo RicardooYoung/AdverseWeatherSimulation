@@ -32,6 +32,7 @@ class Render:
         self.fog_path = None
         self.rain_path = None
         self.smoke_path = None
+        self.cloud_path = None
         self.pattern_path = None
         self.result_path = None
         self.mask_path = None
@@ -65,6 +66,9 @@ class Render:
 
     def set_smoke_path(self, smoke_path):
         self.smoke_path = smoke_path
+
+    def set_cloud_path(self, cloud_path):
+        self.cloud_path = cloud_path
 
     def set_pattern_path(self, pattern_path):
         self.pattern_path = pattern_path
@@ -189,7 +193,7 @@ class Render:
         return shader, omit
 
     def synthesizer(self, **kwargs):
-        if self.render_type != 'smoke':
+        if self.render_type != 'smoke' and self.render_type != 'cloud':
             if self.render_type == 'fog':
                 index = kwargs['index']
                 self.result_path = os.path.join(self.fog_path, self.image_name)
@@ -201,12 +205,19 @@ class Render:
                 color = self.rain_color
             shader, omit = self.render_mask()
         else:
-            depth_map = kwargs['depth_map']
-            index = kwargs['index']
-            self.result_path = os.path.join(self.smoke_path, self.image_name)
-            self.result_path += '_{}_{}_smoke.png'.format(self.condition_dict[index], self.color_flag)
-            color = self.smoke_color
-            shader, omit = self.render_mask(depth_map=depth_map)
+            if self.render_type == 'smoke':
+                depth_map = kwargs['depth_map']
+                index = kwargs['index']
+                self.result_path = os.path.join(self.smoke_path, self.image_name)
+                self.result_path += '_{}_{}_smoke.png'.format(self.condition_dict[index], self.color_flag)
+                color = self.smoke_color
+                shader, omit = self.render_mask(depth_map=depth_map)
+            else:
+                depth_map = kwargs['depth_map']
+                self.result_path = os.path.join(self.cloud_path, self.image_name)
+                self.result_path += '_cloud.png'
+                color = self.smoke_color
+                shader, omit = self.render_mask(depth_map=depth_map)
 
         result = np.empty_like(self.image)
 
@@ -215,7 +226,7 @@ class Render:
         result[:, :, 2] = shader[:, :, 2] + omit * color[:, :, 2]
         cv2.imwrite(self.result_path, result)
 
-    def gen_smoke_pattern(self, point_x, point_y, size, ratio, pattern_path, label, direction):
+    def gen_pattern(self, point_x, point_y, size, ratio, pattern_path, label, direction):
         if label[0] > 0.9 or label[1] > 0.9:
             return np.zeros((self.width, self.height))
         if size % 2 != 0:
@@ -261,6 +272,48 @@ class Render:
         depth_map = np.pad(pattern, ((umargin, dmargin), (lmargin, rmargin)), 'constant')
         return depth_map
 
+    def gen_point(self):
+        num_cloud = np.random.randint(3, 5)
+        self.point = []
+        self.size = []
+        self.direction = []
+        temp_x_list = (np.random.rand(num_cloud) - 0.5)*np.pi
+        temp_x_list = (np.sin(temp_x_list) + 1) / 2
+        temp_x_list = (temp_x_list - 0.5) * np.pi
+        temp_x_list = (np.sin(temp_x_list) + 1) / 2
+        temp_y_list = (np.random.rand(num_cloud) - 0.5)*np.pi
+        temp_y_list = (np.sin(temp_y_list) + 1) / 2
+        temp_y_list = (temp_y_list - 0.5) * np.pi
+        temp_y_list = (np.sin(temp_y_list) + 1) / 2
+        length_x_list = np.random.rand(num_cloud) / 2 + 0.5
+        length_y_list = np.random.rand(num_cloud) / 2 + 0.5
+        for i in range(num_cloud):
+            # temp_x = np.random.rand()
+            # temp_y = np.random.rand()
+            # length_x = np.random.rand() / 2 + 0.3
+            # length_y = np.random.rand() / 2 + 0.3\
+            temp_x = temp_x_list[i]
+            temp_y = temp_y_list[i]
+            length_x = length_x_list[i]
+            length_y = length_y_list[i]
+            if temp_x < 0:
+                temp_x = 0.01
+            elif temp_x > 1:
+                temp_x = 0.99
+            if temp_y < 0:
+                temp_y = 0.01
+            elif temp_y > 1:
+                temp_y = 0.99
+            point_x = int(self.width * temp_x)
+            point_y = int(self.height * temp_y)
+            self.point.append([point_x, point_y])
+            self.size.append(int((self.width * length_x + self.height * length_y) / 2.5))
+            self.label.append([length_x, length_y])
+            if length_x > length_y:
+                self.direction.append('horizontal')
+            else:
+                self.direction.append('vertical')
+
     def add_fog(self, heavy, medium, light):
         self.render_type = 'fog'
         choice = [heavy, medium, light]
@@ -286,9 +339,22 @@ class Render:
             pattern_list = os.listdir(self.pattern_path)
             index = np.random.randint(0, len(pattern_list), dtype=int)
             chosen_pattern_path = os.path.join(self.pattern_path, pattern_list[index])
-            depth_map += self.gen_smoke_pattern(self.point[i][0], self.point[i][1], self.size[i], 80,
-                                                chosen_pattern_path, self.label[i], self.direction[i])
+            depth_map += self.gen_pattern(self.point[i][0], self.point[i][1], self.size[i], 80,
+                                          chosen_pattern_path, self.label[i], self.direction[i])
             for index in range(len(self.smoke_visibility_sequence)):
                 if choice[index]:
                     self.haze_visibility = self.smoke_visibility_sequence[index]
                     self.synthesizer(depth_map=depth_map, index=index)
+
+    def add_cloud(self):
+        self.render_type = 'cloud'
+        depth_map = np.zeros((self.width, self.height))
+        self.gen_point()
+        for i in range(len(self.point)):
+            pattern_list = os.listdir(self.pattern_path)
+            index = np.random.randint(0, len(pattern_list), dtype=int)
+            chosen_pattern_path = os.path.join(self.pattern_path, pattern_list[index])
+            depth_map += self.gen_pattern(self.point[i][0], self.point[i][1], self.size[i], 80,
+                                          chosen_pattern_path, self.label[i], self.direction[i])
+            self.haze_visibility = self.smoke_visibility_sequence[1]
+            self.synthesizer(depth_map=depth_map)

@@ -35,8 +35,9 @@ def arg_parse():
     parser.add_argument('--foggy', default=False, action='store_true')
     parser.add_argument('--rainy', default=False, action='store_true')
     parser.add_argument('--smoky', default=False, action='store_true')
+    parser.add_argument('--cloudy', default=False, action='store_true')
     parser.add_argument('--light', default=False, action='store_true')
-    parser.add_argument('--medium', default=False, action='store_true')
+    parser.add_argument('--medium', default=True, action='store_true')
     parser.add_argument('--heavy', default=False, action='store_true')
     args = parser.parse_args()
     return args
@@ -48,6 +49,7 @@ if __name__ == '__main__':
     foggy = args.foggy
     rainy = args.rainy
     smoky = args.smoky
+    cloudy = args.cloudy
 
     raw_path = os.path.join(path, 'raw')
     mask_path = os.path.join(path, 'masks')
@@ -62,6 +64,9 @@ if __name__ == '__main__':
     smoke_path = os.path.join(path, 'smoky')
     if not os.path.exists(smoke_path):
         os.mkdir(smoke_path)
+    cloud_path = os.path.join(path, 'cloudy')
+    if not os.path.exists(cloud_path):
+        os.mkdir(cloud_path)
 
     label_path = os.path.join(path, 'labels')
     pattern_path = os.path.join(path, 'patterns')
@@ -75,6 +80,7 @@ if __name__ == '__main__':
     my_render.set_fog_path(fog_path)
     my_render.set_rain_path(rain_path)
     my_render.set_smoke_path(smoke_path)
+    my_render.set_cloud_path(cloud_path)
     my_render.set_mask_path(mask_path)
     my_render.set_pattern_path(pattern_path)
     my_render.set_label_path(label_path)
@@ -103,6 +109,10 @@ if __name__ == '__main__':
             for j in range(2):
                 my_render.set_smoke_color(color_list[j], color_flag[j])
                 my_render.add_smoke(args.heavy, args.medium, args.light)
+        if cloudy:
+            print('|_Cloud simulation started.')
+            my_render.set_smoke_color(color_list[0], color_flag[0])
+            my_render.add_cloud()
         end_time = time.time()
         print('|_Time elapsed {:.3f}s'.format(end_time - start_time))
 
