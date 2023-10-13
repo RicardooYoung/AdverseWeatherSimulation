@@ -285,13 +285,9 @@ class Render:
         temp_y_list = (np.sin(temp_y_list) + 1) / 2
         temp_y_list = (temp_y_list - 0.5) * np.pi
         temp_y_list = (np.sin(temp_y_list) + 1) / 2
-        length_x_list = np.random.rand(num_cloud) / 2 + 0.5
-        length_y_list = np.random.rand(num_cloud) / 2 + 0.5
+        length_x_list = np.random.rand(num_cloud) / 2 + 0.3
+        length_y_list = np.random.rand(num_cloud) / 2 + 0.3
         for i in range(num_cloud):
-            # temp_x = np.random.rand()
-            # temp_y = np.random.rand()
-            # length_x = np.random.rand() / 2 + 0.3
-            # length_y = np.random.rand() / 2 + 0.3\
             temp_x = temp_x_list[i]
             temp_y = temp_y_list[i]
             length_x = length_x_list[i]
