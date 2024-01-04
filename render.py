@@ -20,7 +20,7 @@ class Render:
         self.haze_visibility = 450
         # define hyper-parameter
         self.condition_dict = {0: 'heavy', 1: 'medium', 2: 'light'}
-        self.fog_visibility_sequence = [70, 120, 225]
+        self.fog_visibility_sequence = [100, 200, 350]
         self.smoke_visibility_sequence = [100, 200, 400]
         self.coverage_ratio = [10, 25, 40]
 
@@ -102,7 +102,7 @@ class Render:
         self.smoke_color = np.ones_like(self.image)
 
     def set_smoke_color(self, smoke_color, color_flag):
-        self.smoke_color *= smoke_color
+        self.smoke_color = np.ones_like(self.image) * smoke_color
         self.color_flag = color_flag
         self.color_set = True
 
@@ -273,7 +273,7 @@ class Render:
         return depth_map
 
     def gen_point(self):
-        num_cloud = np.random.randint(3, 5)
+        num_cloud = np.random.randint(3, 6)
         self.point = []
         self.size = []
         self.direction = []
