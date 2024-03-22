@@ -1,6 +1,6 @@
 import numpy as np
 from PIL import Image
-from noise import pnoise3
+from noise import pnoise3, pnoise2
 import random
 import cv2
 from numpy.fft import fft2, ifft2
@@ -10,36 +10,38 @@ from skimage.color import rgb2gray
 
 
 def gen_noise(img, depth):
-    p1 = Image.new('L', (img.shape[1], img.shape[0]))
-    p2 = Image.new('L', (img.shape[1], img.shape[0]))
-    p3 = Image.new('L', (img.shape[1], img.shape[0]))
+    original_shape = (img.shape[1], img.shape[0])
+    resized_shape = 480
+    p1 = Image.new('L', (resized_shape, resized_shape))
+    p2 = Image.new('L', (resized_shape, resized_shape))
+    p3 = Image.new('L', (resized_shape, resized_shape))
 
-    # scale = 1 / 800.0
     scale = 1 / 130.0
-    for y in range(img.shape[0]):
-        for x in range(img.shape[1]):
-            v = pnoise3(x * scale, y * scale, (depth - random.randint(0, depth)) * scale, octaves=1, persistence=0.5,
+    for y in range(resized_shape):
+        for x in range(resized_shape):
+            v = pnoise3(x * scale, y * scale, (depth + depth * 0.2 * pnoise2(x * scale, y * scale)) * scale, octaves=8, persistence=0.5,
                         lacunarity=0.5)
             color = int((v + 1) * 128.0)
             p1.putpixel((x, y), color)
+    p1 = p1.resize(original_shape, Image.BICUBIC)
 
-    # scale = 1 / 500.0
     scale = 1 / 60.0
-    for y in range(img.shape[0]):
-        for x in range(img.shape[1]):
-            v = pnoise3(x * scale, y * scale, (depth - random.randint(0, depth)) * scale, octaves=1, persistence=0.5,
+    for y in range(resized_shape):
+        for x in range(resized_shape):
+            v = pnoise3(x * scale, y * scale, (depth + depth * 0.3 * pnoise2(x * scale, y * scale)) * scale, octaves=8, persistence=0.5,
                         lacunarity=0.5)
             color = int((v + 0.5) * 128)
             p2.putpixel((x, y), color)
+    p2 = p2.resize(original_shape, Image.BICUBIC)
 
-    # scale = 1 / 300.0
-    scale = 1 / 10.0
-    for y in range(img.shape[0]):
-        for x in range(img.shape[1]):
-            v = pnoise3(x * scale, y * scale, (depth - random.randint(0, depth)) * scale, octaves=1, persistence=0.5,
+    scale = 1 / 20.0
+    for y in range(resized_shape):
+        for x in range(resized_shape):
+            v = pnoise3(x * scale, y * scale, (depth + 0.5 * depth * pnoise2(x * scale, y * scale)) * scale, octaves=8, persistence=0.5,
                         lacunarity=0.5)
             color = int((v + 1.2) * 128)
             p3.putpixel((x, y), color)
+    p3 = p3.resize(original_shape, Image.BICUBIC)
 
     perlin = (np.array(p1) + np.array(p2) / 2 + np.array(p3) / 4) / 3
 
