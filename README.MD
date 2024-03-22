@@ -1,6 +1,11 @@
 # Introduction
 This is a simulator that generates foggy, rainy, smoky and cloudy image over a clear remote sensing image.
 
+# Update
+### 2024.03.22
+- Accelerate speed when processing large images.
+- Improve continuity of generated fog.
+
 # Preparation
 ### Create a Virtual Environment
 Run ``pip install -r requirements.txt``.
