@@ -228,7 +228,7 @@ class Render:
 
     def gen_pattern(self, point_x, point_y, size, ratio, pattern_path, label, direction):
         if label[0] > 0.9 or label[1] > 0.9:
-            return np.zeros((self.width, self.height))
+            return np.zeros((self.height, self.width))
         if size % 2 != 0:
             size -= 1
         if point_x <= int(size / 2) + 1:
@@ -327,7 +327,7 @@ class Render:
 
     def add_smoke(self, heavy, medium, light):
         self.render_type = 'smoke'
-        depth_map = np.zeros((self.width, self.height))
+        depth_map = np.zeros((self.height, self.width))
         choice = [heavy, medium, light]
         for i in range(len(self.point)):
             if self.size[i] / self.width >= 0.75 or self.size[i] / self.height >= 0.75:
@@ -344,7 +344,7 @@ class Render:
 
     def add_cloud(self):
         self.render_type = 'cloud'
-        depth_map = np.zeros((self.width, self.height))
+        depth_map = np.zeros((self.height, self.width))
         self.gen_point()
         for i in range(len(self.point)):
             pattern_list = os.listdir(self.pattern_path)
