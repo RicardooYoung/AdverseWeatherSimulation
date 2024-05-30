@@ -55,6 +55,10 @@ class Render:
         self.size = []
         self.direction = []
 
+        self.heavy = False
+        self.medium = False
+        self.light = False
+
     def set_raw_path(self, raw_path):
         self.raw_path = raw_path
 
@@ -310,9 +314,9 @@ class Render:
             else:
                 self.direction.append('vertical')
 
-    def add_fog(self, heavy, medium, light):
+    def add_fog(self):
         self.render_type = 'fog'
-        choice = [heavy, medium, light]
+        choice = [self.heavy, self.medium, self.light]
         for index in range(len(self.fog_visibility_sequence)):
             if choice[index]:
                 self.haze_visibility = self.fog_visibility_sequence[index]
@@ -325,10 +329,10 @@ class Render:
         overlap(self.result_path, self.mask)
         add_stripe(self.result_path, 60, 5, 50)
 
-    def add_smoke(self, heavy, medium, light):
+    def add_smoke(self):
         self.render_type = 'smoke'
         depth_map = np.zeros((self.height, self.width))
-        choice = [heavy, medium, light]
+        choice = [self.heavy, self.medium, self.light]
         for i in range(len(self.point)):
             if self.size[i] / self.width >= 0.75 or self.size[i] / self.height >= 0.75:
                 continue

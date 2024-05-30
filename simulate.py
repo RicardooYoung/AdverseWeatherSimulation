@@ -85,6 +85,13 @@ if __name__ == '__main__':
     my_render.set_pattern_path(pattern_path)
     my_render.set_label_path(label_path)
 
+    if args.light:
+        my_render.light = True
+    if args.medium:
+        my_render.medium = True
+    if args.heavy:
+        my_render.heavy = True
+
     color_list = [240, 30]
     color_flag = ['white', 'black']
 
@@ -99,7 +106,7 @@ if __name__ == '__main__':
         my_render.read_image(image_path)
         if foggy:
             print('|_Fog simulation started.')
-            my_render.add_fog(args.heavy, args.medium, args.light)
+            my_render.add_fog()
         if rainy:
             print('|_Rain simulation started.')
             my_render.add_rain()
@@ -108,7 +115,7 @@ if __name__ == '__main__':
             my_render.label_parse()
             for j in range(2):
                 my_render.set_smoke_color(color_list[j], color_flag[j])
-                my_render.add_smoke(args.heavy, args.medium, args.light)
+                my_render.add_smoke()
         if cloudy:
             print('|_Cloud simulation started.')
             my_render.set_smoke_color(color_list[0], color_flag[0])
