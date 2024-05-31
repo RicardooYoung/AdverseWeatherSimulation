@@ -26,16 +26,16 @@ class Render:
 
         self.image = None
         self.image_name = None
-        self.raw_path = None
-        self.label_path = None
+        self.raw_path = 'data/raw'
+        self.label_path = 'data/labels'
         # input path
-        self.fog_path = None
-        self.rain_path = None
-        self.smoke_path = None
-        self.cloud_path = None
-        self.pattern_path = None
+        self.fog_path = 'data/foggy'
+        self.rain_path = 'data/rainy'
+        self.smoke_path = 'data/smoky'
+        self.cloud_path = 'data/cloudy'
+        self.pattern_path = 'data/patterns'
         self.result_path = None
-        self.mask_path = None
+        self.mask_path = 'data/masks'
         # output path
         self.chosen_label_path = None
         self.height = 0
@@ -82,6 +82,9 @@ class Render:
 
     def set_mask_path(self, mask_path):
         self.mask_path = mask_path
+
+    def set_result_path(self, result_path):
+        self.result_path = result_path
 
     def read_image(self, image_path):
         self.image = cv2.imread(image_path)
@@ -197,29 +200,33 @@ class Render:
         return shader, omit
 
     def synthesizer(self, **kwargs):
-        if self.render_type != 'smoke' and self.render_type != 'cloud':
+        if self.render_type == 'fog' or self.render_type == 'rain':
             if self.render_type == 'fog':
-                index = kwargs['index']
-                self.result_path = os.path.join(self.fog_path, self.image_name)
-                self.result_path += '_{}_fog.png'.format(self.condition_dict[index])
+                if self.result_path is None:
+                    index = kwargs['index']
+                    self.result_path = os.path.join(self.fog_path, self.image_name)
+                    self.result_path += '_{}_fog.png'.format(self.condition_dict[index])
                 color = self.fog_color
             elif self.render_type == 'rain':
-                self.result_path = os.path.join(self.rain_path, self.image_name)
-                self.result_path += '_rain.png'
+                if self.result_path is None:
+                    self.result_path = os.path.join(self.rain_path, self.image_name)
+                    self.result_path += '_rain.png'
                 color = self.rain_color
             shader, omit = self.render_mask()
         else:
             if self.render_type == 'smoke':
                 depth_map = kwargs['depth_map']
-                index = kwargs['index']
-                self.result_path = os.path.join(self.smoke_path, self.image_name)
-                self.result_path += '_{}_{}_smoke.png'.format(self.condition_dict[index], self.color_flag)
+                if self.result_path is None:
+                    index = kwargs['index']
+                    self.result_path = os.path.join(self.smoke_path, self.image_name)
+                    self.result_path += '_{}_{}_smoke.png'.format(self.condition_dict[index], self.color_flag)
                 color = self.smoke_color
                 shader, omit = self.render_mask(depth_map=depth_map)
             else:
                 depth_map = kwargs['depth_map']
-                self.result_path = os.path.join(self.cloud_path, self.image_name)
-                self.result_path += '_cloud.png'
+                if self.result_path is None:
+                    self.result_path = os.path.join(self.cloud_path, self.image_name)
+                    self.result_path += '_cloud.png'
                 color = self.smoke_color
                 shader, omit = self.render_mask(depth_map=depth_map)
 
@@ -321,6 +328,7 @@ class Render:
             if choice[index]:
                 self.haze_visibility = self.fog_visibility_sequence[index]
                 self.synthesizer(index=index)
+        self.result_path = None
 
     def add_rain(self):
         self.render_type = 'rain'
@@ -328,6 +336,7 @@ class Render:
         self.synthesizer()
         overlap(self.result_path, self.mask)
         add_stripe(self.result_path, 60, 5, 50)
+        self.result_path = None
 
     def add_smoke(self):
         self.render_type = 'smoke'
@@ -345,6 +354,7 @@ class Render:
                 if choice[index]:
                     self.haze_visibility = self.smoke_visibility_sequence[index]
                     self.synthesizer(depth_map=depth_map, index=index)
+        self.result_path = None
 
     def add_cloud(self):
         self.render_type = 'cloud'
@@ -358,3 +368,4 @@ class Render:
                                           chosen_pattern_path, self.label[i], self.direction[i])
             self.haze_visibility = self.smoke_visibility_sequence[1]
             self.synthesizer(depth_map=depth_map)
+        self.result_path = None
