@@ -37,7 +37,7 @@ def arg_parse():
     parser.add_argument('--smoky', default=False, action='store_true')
     parser.add_argument('--cloudy', default=False, action='store_true')
     parser.add_argument('--light', default=False, action='store_true')
-    parser.add_argument('--medium', default=True, action='store_true')
+    parser.add_argument('--medium', default=False, action='store_true')
     parser.add_argument('--heavy', default=False, action='store_true')
     args = parser.parse_args()
     return args
@@ -87,9 +87,9 @@ if __name__ == '__main__':
 
     if args.light:
         my_render.light = True
-    if args.medium:
+    elif args.medium:
         my_render.medium = True
-    if args.heavy:
+    elif args.heavy:
         my_render.heavy = True
 
     color_list = [240, 30]
@@ -100,7 +100,7 @@ if __name__ == '__main__':
             print('Detect a system generated file, pass.')
             continue
         print(colorstr('[{}/{}]'.format(i + 1, len(image_list))),
-              'Now processing {}.'.format(image_list[i].split('\\')[-1]))
+              'Now processing {}.'.format(os.path.basename(image_list[i])))
         start_time = time.time()
         image_path = os.path.join(raw_path, image_list[i])
         my_render.read_image(image_path)
