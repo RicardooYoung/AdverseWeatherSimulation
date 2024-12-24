@@ -88,7 +88,7 @@ class Render:
 
     def read_image(self, image_path):
         self.image = cv2.imread(image_path)
-        self.image_name = image_path.split('\\')[-1].split('.')[0]
+        self.image_name = os.path.splitext(os.path.basename(image_path))[0]
         self.height, self.width = self.image.shape[:2]
         if len(self.image.shape) == 3:
             self.input_channels = 3
